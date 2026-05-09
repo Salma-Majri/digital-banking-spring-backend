@@ -6,6 +6,7 @@ import net.majri.ebankingbackend.entities.BankAccount;
 import net.majri.ebankingbackend.entities.CurrentAccount;
 import net.majri.ebankingbackend.entities.Customer;
 import net.majri.ebankingbackend.entities.SavingAccount;
+import net.majri.ebankingbackend.exceptions.BankAccountNotFoundException;
 import net.majri.ebankingbackend.exceptions.CustomerNotFoundException;
 import net.majri.ebankingbackend.repositories.AccountOperationRepository;
 import net.majri.ebankingbackend.repositories.BankAccountRepository;
@@ -65,12 +66,13 @@ public class BankAccountServiceImpl implements BankAccountService{
 
     @Override
     public List<Customer> listCustomers() {
-        return List.of();
+        return customerRepository.findAll();
     }
 
     @Override
-    public BankAccount getBankAccount(String accountId) {
-        return null;
+    public BankAccount getBankAccount(String accountId) throws BankAccountNotFoundException {
+        return bankAccountRepository.findById(accountId)
+                .orElseThrow(()->new BankAccountNotFoundException("BankAccount not found"));
     }
 
     @Override
