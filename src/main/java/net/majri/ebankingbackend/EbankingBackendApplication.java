@@ -3,6 +3,9 @@ package net.majri.ebankingbackend;
 import net.majri.ebankingbackend.entities.*;
 import net.majri.ebankingbackend.enums.AccountStatus;
 import net.majri.ebankingbackend.enums.OperationType;
+import net.majri.ebankingbackend.exceptions.BalanceNotSufficientException;
+import net.majri.ebankingbackend.exceptions.BankAccountNotFoundException;
+import net.majri.ebankingbackend.exceptions.CustomerNotFoundException;
 import net.majri.ebankingbackend.repositories.AccountOperationRepository;
 import net.majri.ebankingbackend.repositories.BankAccountRepository;
 import net.majri.ebankingbackend.repositories.CustomerRepository;
@@ -10,8 +13,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import net.majri.ebankingbackend.services.BankAccountService;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -22,29 +27,33 @@ public class EbankingBackendApplication {
         SpringApplication.run(EbankingBackendApplication.class, args);
     }
     @Bean
-    CommandLineRunner commandLineRunner(BankAccountRepository bankAccountRepository){
+    CommandLineRunner commandLineRunner(BankAccountService bankAccountService){
         return args->{
-            BankAccount bankAccount=
-                    bankAccountRepository.findById("07e2d39f-6edb-4d06-8222-b9953eed0bb1").orElse(null);
-            if(bankAccount!=null){
-                System.out.println("***********************************");
-                System.out.println(bankAccount.getId());
-                System.out.println(bankAccount.getBalance());
-                System.out.println(bankAccount.getStatus());
-                System.out.println(bankAccount.getCreatedAt());
-                System.out.println(bankAccount.getCustomer().getName());
-                System.out.println(bankAccount.getClass().getSimpleName());
-                if(bankAccount instanceof CurrentAccount){
-                    System.out.println("Over Draft=>"+((CurrentAccount)bankAccount).getOverDraft());
-                } else  if(bankAccount instanceof SavingAccount){
-                    System.out.println("Rate=>"+((SavingAccount)bankAccount).getInterestRate());
+            Stream.of("Hassan","Imane","Mohamed","Salma").forEach(name->{
+                Customer customer=new Customer();
+                customer.setName(name);
+                customer.setEmail(name+"@gmail.com");
+                bankAccountService.saveCustomer(customer);
+            });
+            bankAccountService.listCustomers().forEach(customer->{
+                try {
+                    bankAccountService.saveCurrentBankAccount(Math.random()*90000,9000,customer.getId());
+                    bankAccountService.saveSavingBankAccount(Math.random()*120000,5.5,customer.getId());
+                    List<BankAccount> bankAccounts = bankAccountService.bankAccountList();
+                    for (BankAccount bankAccount:bankAccounts){
+                        for (int i = 0; i <10 ; i++) {
+                            bankAccountService.credit(bankAccount.getId(), 10000+Math.random()*120000, "Credit");
+                            bankAccountService.debit(bankAccount.getId(), 1000+Math.random()*9000, "Debit");
+                        }
+                    }
+                } catch (CustomerNotFoundException e) {
+                    e.printStackTrace();
+                } catch (BankAccountNotFoundException e) {
+                    throw new RuntimeException(e);
+                } catch (BalanceNotSufficientException e) {
+                    throw new RuntimeException(e);
                 }
-
-                bankAccount.getAccountOperations().forEach(op->{
-                    System.out.println(op.getType()+"\t"+op.getOperationDate()+"\t"+op.getAmount());
-                });
-
-            }
+            });
         };
     }
 
