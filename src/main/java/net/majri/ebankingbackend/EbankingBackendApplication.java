@@ -1,9 +1,6 @@
 package net.majri.ebankingbackend;
 
-import net.majri.ebankingbackend.entities.AccountOperation;
-import net.majri.ebankingbackend.entities.CurrentAccount;
-import net.majri.ebankingbackend.entities.Customer;
-import net.majri.ebankingbackend.entities.SavingAccount;
+import net.majri.ebankingbackend.entities.*;
 import net.majri.ebankingbackend.enums.AccountStatus;
 import net.majri.ebankingbackend.enums.OperationType;
 import net.majri.ebankingbackend.repositories.AccountOperationRepository;
@@ -25,6 +22,36 @@ public class EbankingBackendApplication {
         SpringApplication.run(EbankingBackendApplication.class, args);
     }
     @Bean
+    CommandLineRunner commandLineRunner(BankAccountRepository bankAccountRepository){
+        return args->{
+            BankAccount bankAccount=
+                    bankAccountRepository.findById("07e2d39f-6edb-4d06-8222-b9953eed0bb1").orElse(null);
+            if(bankAccount!=null){
+                System.out.println("***********************************");
+                System.out.println(bankAccount.getId());
+                System.out.println(bankAccount.getBalance());
+                System.out.println(bankAccount.getStatus());
+                System.out.println(bankAccount.getCreatedAt());
+                System.out.println(bankAccount.getCustomer().getName());
+                System.out.println(bankAccount.getClass().getSimpleName());
+                if(bankAccount instanceof CurrentAccount){
+                    System.out.println("Over Draft=>"+((CurrentAccount)bankAccount).getOverDraft());
+                } else  if(bankAccount instanceof SavingAccount){
+                    System.out.println("Rate=>"+((SavingAccount)bankAccount).getInterestRate());
+                }
+
+                bankAccount.getAccountOperations().forEach(op->{
+                    System.out.println(op.getType()+"\t"+op.getOperationDate()+"\t"+op.getAmount());
+                });
+
+            }
+        };
+    }
+
+
+
+
+    //@Bean
     CommandLineRunner start(CustomerRepository customerRepository,
                             BankAccountRepository bankAccountRepository,
                             AccountOperationRepository accountOperationRepository){
@@ -64,8 +91,17 @@ public class EbankingBackendApplication {
                     accountOperation.setBankAccount(acc);
                     accountOperationRepository.save(accountOperation);
                 }
+
+
+
             });
+
+
 
         };
     }
+
+
+
+
 }
