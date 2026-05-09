@@ -1,9 +1,11 @@
 package net.majri.ebankingbackend;
 
+import net.majri.ebankingbackend.entities.AccountOperation;
 import net.majri.ebankingbackend.entities.CurrentAccount;
 import net.majri.ebankingbackend.entities.Customer;
 import net.majri.ebankingbackend.entities.SavingAccount;
 import net.majri.ebankingbackend.enums.AccountStatus;
+import net.majri.ebankingbackend.enums.OperationType;
 import net.majri.ebankingbackend.repositories.AccountOperationRepository;
 import net.majri.ebankingbackend.repositories.BankAccountRepository;
 import net.majri.ebankingbackend.repositories.CustomerRepository;
@@ -52,6 +54,18 @@ public class EbankingBackendApplication {
                 savingAccount.setInterestRate(5.5);
                 bankAccountRepository.save(savingAccount);
             });
+
+            bankAccountRepository.findAll().forEach(acc->{
+                for (int i = 0; i < 10 ; i++) {
+                    AccountOperation accountOperation=new AccountOperation();
+                    accountOperation.setOperationDate(new Date());
+                    accountOperation.setAmount(Math.random()*12000);
+                    accountOperation.setType(Math.random()>0.5? OperationType.DEBIT: OperationType.CREDIT);
+                    accountOperation.setBankAccount(acc);
+                    accountOperationRepository.save(accountOperation);
+                }
+            });
+
         };
     }
 }
