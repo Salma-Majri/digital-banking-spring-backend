@@ -1,5 +1,6 @@
 package net.majri.ebankingbackend;
 
+import net.majri.ebankingbackend.dtos.CustomerDTO;
 import net.majri.ebankingbackend.entities.*;
 import net.majri.ebankingbackend.enums.AccountStatus;
 import net.majri.ebankingbackend.enums.OperationType;
@@ -30,7 +31,7 @@ public class EbankingBackendApplication {
     CommandLineRunner commandLineRunner(BankAccountService bankAccountService){
         return args->{
             Stream.of("Hassan","Imane","Mohamed","Salma").forEach(name->{
-                Customer customer=new Customer();
+                CustomerDTO customer=new CustomerDTO();
                 customer.setName(name);
                 customer.setEmail(name+"@gmail.com");
                 bankAccountService.saveCustomer(customer);
