@@ -8,6 +8,7 @@ import net.majri.ebankingbackend.enums.OperationType;
 import net.majri.ebankingbackend.exceptions.BalanceNotSufficientException;
 import net.majri.ebankingbackend.exceptions.BankAccountNotFoundException;
 import net.majri.ebankingbackend.exceptions.CustomerNotFoundException;
+import net.majri.ebankingbackend.mappers.BankAccountMapperImpl;
 import net.majri.ebankingbackend.repositories.AccountOperationRepository;
 import net.majri.ebankingbackend.repositories.BankAccountRepository;
 import net.majri.ebankingbackend.repositories.CustomerRepository;
@@ -27,7 +28,7 @@ public class BankAccountServiceImpl implements BankAccountService{
     private CustomerRepository customerRepository;
     private BankAccountRepository bankAccountRepository;
     private AccountOperationRepository accountOperationRepository;
-    private BankAccountServiceImpl dtoMapper;
+    private BankAccountMapperImpl dtoMapper;
     @Override
     public Customer saveCustomer(Customer customer) {
         log.info("Saving new custom er");
@@ -125,6 +126,16 @@ public class BankAccountServiceImpl implements BankAccountService{
         return bankAccountRepository.findAll();
 
     }
+    @Override
+    public CustomerDTO getCustomer(Long customerId) throws CustomerNotFoundException {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer Not found"));
+        return dtoMapper.fromCustomer(customer);
+    }
+
+
+
+
 
     @Override
     public Object fromCustomer(Customer customer) {

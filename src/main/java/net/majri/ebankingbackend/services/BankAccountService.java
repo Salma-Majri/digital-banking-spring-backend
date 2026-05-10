@@ -23,5 +23,7 @@ public interface BankAccountService {
 
     List<BankAccount> bankAccountList();
 
+    CustomerDTO getCustomer(Long customerId) throws CustomerNotFoundException;
+
     Object fromCustomer(Customer customer);
 }
