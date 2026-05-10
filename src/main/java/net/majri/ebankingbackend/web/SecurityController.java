@@ -25,6 +25,9 @@ public class SecurityController {
     @Autowired
     private JwtEncoder jwtEncoder;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     @GetMapping("/profile")
     public Authentication authentication(Authentication authentication) {
         return authentication;
@@ -32,12 +35,21 @@ public class SecurityController {
 
     @PostMapping("/login")
     public Map<String, String> login(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+
         Instant instant = Instant.now();
+
+        String scope = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
                 .issuedAt(instant)
                 .expiresAt(instant.plus(10, ChronoUnit.MINUTES))
-                .subject(username)
-                .claim("scope", "USER")
+                .subject(authentication.getName())
+                .claim("scope", scope)
                 .build();
 
         String jwtAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
