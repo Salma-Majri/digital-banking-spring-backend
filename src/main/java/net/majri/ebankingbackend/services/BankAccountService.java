@@ -26,4 +26,8 @@ public interface BankAccountService {
     CustomerDTO getCustomer(Long customerId) throws CustomerNotFoundException;
 
     Object fromCustomer(Customer customer);
+
+    CustomerDTO updateCustomer(CustomerDTO customerDTO);
+
+    void deleteCustomer(Long customerId);
 }

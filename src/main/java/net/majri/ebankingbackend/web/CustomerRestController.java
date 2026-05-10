@@ -3,7 +3,6 @@ package net.majri.ebankingbackend.web;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.majri.ebankingbackend.dtos.CustomerDTO;
-import net.majri.ebankingbackend.entities.Customer;
 import net.majri.ebankingbackend.exceptions.CustomerNotFoundException;
 import net.majri.ebankingbackend.services.BankAccountService;
 import org.springframework.web.bind.annotation.*;
@@ -30,4 +29,17 @@ public class CustomerRestController {
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         return bankAccountService.saveCustomer(customerDTO);
     }
+
+    @PutMapping("/customers/{customerId}")
+    public CustomerDTO updateCustomer(@PathVariable Long customerId, @RequestBody CustomerDTO customerDTO){
+        customerDTO.setId(customerId);
+        return bankAccountService.updateCustomer(customerDTO);
+    }
+
+    @DeleteMapping("/customers/{id}")
+    public void deleteCustomer(@PathVariable Long id){
+        bankAccountService.deleteCustomer(id);
+    }
+
+
 }
